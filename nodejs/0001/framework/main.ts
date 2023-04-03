@@ -1,11 +1,11 @@
-import { process } from './job'
+import { process, ProcessResult } from '../src/job'
 import { reset } from './manager'
-import { Control } from './mongoWrapper'
+import { Control } from '../lib/mongoWrapper'
 import { log } from 'console-log-colors'
-import { TestMultipartUpload } from './sink'
+import { testMultipartUpload } from '../lib/sink'
 
 async function run_job() {
-    let result: boolean
+    let result: ProcessResult
     let runsRemaining: number = 5;
 
     do {
@@ -13,9 +13,9 @@ async function run_job() {
         
         result = await process(() => Control.getQueriesLeft() < 1200);
         runsRemaining--;
-    } while (!result && runsRemaining > 0)
+    } while (result != ProcessResult.Finished && runsRemaining > 0)
 
-
+    testMultipartUpload();
 }
 
 async function run() {

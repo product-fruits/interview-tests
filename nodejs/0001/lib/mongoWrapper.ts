@@ -7,8 +7,10 @@ import {
     Sort as MSort,
     UpdateFilter as MUpdateFilter,
     WithId as MWithId,
+    OptionalUnlessRequiredId as MOptionalUnlessRequiredId,
     FindCursor as MFindCursor,
-    ModifyResult as MModifyResult
+    ModifyResult as MModifyResult,
+    InsertOneResult
 } from 'mongodb'
 import { config } from 'dotenv'
 import { NotFoundException } from '@aws-sdk/client-sns';
@@ -35,7 +37,7 @@ export class Control {
 }
 
 export class FindCursor<TSchema> {
-    findCursor: MFindCursor<TSchema>
+    private findCursor: MFindCursor<TSchema>
 
     constructor(mFindCursor: MFindCursor<TSchema>) {
         this.findCursor = mFindCursor;
@@ -67,7 +69,7 @@ export class FindCursor<TSchema> {
 }
 
 export class Collection<TSchema extends Document> {
-    collection: MCollection<TSchema>
+    private collection: MCollection<TSchema>
     
     constructor(mcollection: MCollection<TSchema>) {
         this.collection = mcollection
@@ -95,16 +97,20 @@ export class Collection<TSchema extends Document> {
     }
 
     async findOneAndUpsert(filter: MFilter<TSchema>, updateFilter: MUpdateFilter<TSchema>): Promise<MModifyResult<TSchema>> {
-        return await this.collection.findOneAndUpdate(filter, updateFilter)
+        return await this.collection.findOneAndUpdate(filter, updateFilter, {upsert: true})
     }
 
     async remove(filter: MFilter<TSchema>): Promise<MModifyResult<TSchema>> {
         return await this.collection.findOneAndDelete(filter)
     }
+
+    async Insert(doc: MOptionalUnlessRequiredId<TSchema>): Promise<InsertOneResult<TSchema>> {
+        return await this.collection.insertOne(doc)
+    }
 }
 
 export class MongoClient {
-    mongoClient: MMongoClient
+    private mongoClient: MMongoClient
 
     constructor() {
         this.mongoClient = new MMongoClient(process.env.MONGO_SERVER as string, {
@@ -127,7 +133,7 @@ export declare class Document {
 }
 
 export class Db {
-    db: MDb
+    private db: MDb
 
     constructor(mdb: MDb) {
         this.db = mdb

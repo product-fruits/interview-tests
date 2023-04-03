@@ -12,7 +12,7 @@ import peerDepsExternal from 'rollup-plugin-peer-deps-external';
 
 export default [
     {
-        input: "./src/main.ts",
+        input: "./framework/main.ts",
         output: [
             {
                 dir: "dist/cjs/",
