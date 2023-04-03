@@ -77,7 +77,7 @@ export function completeMultipartUpload(multipartIdentifier: string, partDescrip
         }
 
         if (partFound.etag !== partDescriptor.etag) {
-            throw Error(`Part with number ${partDescriptor.number} has invalid ETag ${partDescriptor.etag}`)
+            throw Error(`Part with number ${partDescriptor.number} has invalid ETag ${partDescriptor.etag}, should have ${partFound.etag}`)
         }
 
         finalParts[partDescriptor.number] = partFound
@@ -110,12 +110,48 @@ export function testMultipartUpload() {
     }
 
     let expectedOrder = 1;
-    multipartUpload.parts.forEach(part => {
+    multipartUpload.parts.forEach((part, index) => {
         if (!part.data) {
             throw Error(`Part data missing`)
         }
 
         var dataParts = part.data.split(',')
-        
+
+        if (dataParts.length != 4) {
+            throw Error(`Record ${index} has ${dataParts.length} parts instead of 4`)
+        }
+
+        const dataOrder = Number(dataParts[0])
+        const dataIndex = Number(dataParts[1])
+        const dataFirstName = Number(dataParts[2])
+        const dataLastName = Number(dataParts[3])
+
+        const expectedDataOrder = index+1
+
+        if (dataOrder != expectedDataOrder) {
+            throw Error(`Record ${index} has order ${dataOrder} instead of ${expectedDataOrder}`)
+        }
+
+        const expectedDataIndex = (Math.floor((expectedDataOrder - 1) / 100))* 100 + (100 - (expectedDataOrder - 1) % 100)
+
+        if (dataIndex != expectedDataIndex) {
+            throw Error(`Record ${index} has index ${dataIndex} instead of ${expectedDataIndex}`)
+        }
+
+        if (!dataParts[2].trim()) {
+            throw Error(`Record ${index} has empty first_name`)
+        }
+
+        if (!isNaN(dataFirstName)) {
+            throw Error(`Record ${index} has first_name ${dataFirstName} instead of string`)
+        }
+
+        if (!dataParts[3].trim()) {
+            throw Error(`Record ${index} has empty last_name`)
+        }
+
+        if (!isNaN(dataLastName)) {
+            throw Error(`Record ${index} has last_name ${dataLastName} instead of string`)
+        }
     });
 }

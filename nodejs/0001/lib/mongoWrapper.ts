@@ -8,6 +8,7 @@ import {
     UpdateFilter as MUpdateFilter,
     WithId as MWithId,
     OptionalUnlessRequiredId as MOptionalUnlessRequiredId,
+    FindOptions as MFindOptions,
     FindCursor as MFindCursor,
     ModifyResult as MModifyResult,
     InsertOneResult
@@ -76,14 +77,22 @@ export class Collection<TSchema extends Document> {
     }
 
     findOne(): Promise<MWithId<TSchema> | null>;
-    findOne(filter?: MFilter<TSchema>): Promise<MWithId<TSchema> | null> {
+    findOne(filter: MFilter<TSchema>): Promise<MWithId<TSchema> | null>;
+    findOne(filter: MFilter<TSchema>, options: MFindOptions<TSchema>): Promise<MWithId<TSchema> | null>;
+    findOne(filter?: MFilter<TSchema>, options?: MFindOptions<TSchema>): Promise<MWithId<TSchema> | null> {
         queryCheck();
 
-        if (!filter) {
+        if (!filter && !options) {
             return this.collection.findOne();
         }
-        
-        return this.collection.findOne(filter)
+        else if (filter && !options) {
+            return this.collection.findOne(filter)
+        }
+        else if (filter && options) {
+            return this.collection.findOne(filter, options)
+        }
+
+        throw Error('Unknown implementation')
     }
 
     find(filter?: MFilter<TSchema>): FindCursor<MWithId<TSchema>> {

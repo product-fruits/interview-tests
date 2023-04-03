@@ -5,7 +5,7 @@ Welcome!
 You will need Visual Studio Code and Live Share extension.
 
 ## Repository
-`nodejs/0001` contains sample application. Your task is to create implementation in `nodejs/0001/job.ts`. Rest of files is not important for you, it's just testing/reviewing framework.
+`nodejs/0001` contains sample application. Your task is to create implementation in `nodejs/0001/src/job.ts`. Rest of files is not important for you, it's just testing/reviewing framework.
 
 ## What you have
 You don't need to import anything else. Your job has everything prepared.
@@ -34,14 +34,14 @@ export interface PartDescriptor {
 The `number` is number of part and `etag` is value returned from `UploadPart()` function. `etag` is used to ensure consistency. If it doesn't match the value returned by `uploadPart()` the `completeMultipartUpload()` call fails.
 
 ### Job
-Your job has restricted lifetime. Your `process()` function has `shouldEnd` callback. Whenever the callback returns `true` your job is about to die (timeout). That means you have to save your current state and resume when your job is called again. If `shouldEnd()` returns `true`, it means you can do just a few Mongo operations left (retrieving 1 document from cursor also counts as operation). Your method should end ASAP.
+Your job has restricted lifetime. Your `process()` function has `shouldEnd` callback. Whenever the callback returns `true` your job is about to die (timeout). That means you have to save your current state and resume when your job is called again. If `shouldEnd()` returns `true`, it means you can do just less than 1.200 Mongo operations left (retrieving 1 document from cursor also counts as operation). Your method should save its state and end ASAP with result `ProcessResult.NotYetDone`.
 
 ## The task
 You need to:
-* take all data from source data Mongo collection,
-* order them by `order` field
-* transform them to output format
-* send the output data to sink
+* Take all data from source data Mongo collection.
+* Order them by `order` field; the `order` field value is unique among all documents; its values are greater than `0`.
+* Transform them to output format.
+* Send the output data to sink.
 
 Source data look like this:
 ```
@@ -99,4 +99,4 @@ The 4 records will be sent to `sink` as 4 separate parts of one multipart upload
 
 When your job returns `ProcessResult.NotYetDone` it means its task is not done yet and it needs to be called again to continue when it left off. If it returns `ProcessResult.Finished` it means the task is done and the output data is ready to be checked.
 
-At this time all temporary data in Mongo should be cleaned up.
+At this time all temporary data (documents) in Mongo should be cleaned up. Remaining empty collections are OK.

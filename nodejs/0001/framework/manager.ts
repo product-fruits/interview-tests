@@ -1,6 +1,6 @@
 import { MongoClient } from 'mongodb'
 import { uniqueNamesGenerator, Config, names, adjectives } from 'unique-names-generator'
-import { log, color, yellow } from 'console-log-colors'
+import { log, color, green, yellow, reset as colorReset } from 'console-log-colors'
 
 export async function reset() {
     const mongoClient = new MongoClient(process.env.MONGO_SERVER as string, {
@@ -58,4 +58,57 @@ export async function reset() {
     }
 
     console.log(yellow.bold(`Saved ${documents_count} documents`))
+
+    mongoClient.close()
+}
+
+export async function cleanup() {
+    log.green('  >>>>> Starting initial cleanup')
+
+    const mongoClient = new MongoClient(process.env.MONGO_SERVER as string, {
+        tlsCAFile: 'rds-combined-ca-bundle.pem'
+    })
+
+    mongoClient.connect()
+
+    const db = mongoClient.db('test_0001')
+    const collectionsCursor = db.listCollections({name: {$ne: 'source_data'}})
+    while (await collectionsCursor.hasNext()) {
+        const coll = await collectionsCursor.next()
+        if (coll == null) {
+            continue;
+        }
+
+        await db.dropCollection(coll.name)
+
+        console.log(yellow.bold(`    Collection ${color.underline(coll.name)} dropped`))
+    }
+
+    mongoClient.close()
+    console.log(green.bold('  >>>>> Initial cleanup finished'))
+}
+
+export async function checkCleanup() {
+    const mongoClient = new MongoClient(process.env.MONGO_SERVER as string, {
+        tlsCAFile: 'rds-combined-ca-bundle.pem'
+    })
+
+    mongoClient.connect()
+
+    const db = mongoClient.db('test_0001')
+    const collectionsCursor = db.listCollections({name: {$ne: 'source_data'}})
+    while (await collectionsCursor.hasNext()) {
+        const coll = await collectionsCursor.next()
+        if (coll == null) {
+            continue;
+        }
+
+        const collToCheck = db.collection(coll.name)
+        const doc = await collToCheck.findOne()
+        if (doc != null) {
+            throw Error(`Job cleanup missing: Collection ${color.underline(coll.name)} contains some documents`)
+        }
+    }
+
+    mongoClient.close()
 }
