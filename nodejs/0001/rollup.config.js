@@ -32,7 +32,9 @@ export default [
             // NEW
             terser(),
 
-            run(),
+            run({
+                execArgv: ['--enable-source-maps']
+            }),
             sourcemaps()
         ],
     },

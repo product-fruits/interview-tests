@@ -113,7 +113,7 @@ export class Collection<TSchema extends Document> {
         return await this.collection.findOneAndDelete(filter)
     }
 
-    async Insert(doc: MOptionalUnlessRequiredId<TSchema>): Promise<InsertOneResult<TSchema>> {
+    async insert(doc: MOptionalUnlessRequiredId<TSchema>): Promise<InsertOneResult<TSchema>> {
         return await this.collection.insertOne(doc)
     }
 }
@@ -129,6 +129,11 @@ export class MongoClient {
 
     async connect(): Promise<MongoClient> {
         await this.mongoClient.connect()
+        return this
+    }
+
+    async close(): Promise<MongoClient> {
+        await this.mongoClient.close()
         return this
     }
 
