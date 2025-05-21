@@ -1,0 +1,26 @@
+{
+  "name": "product-fruits-tour",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "size": "du -h dist | sort -h"
+  },
+  "dependencies": {
+    "@tailwindcss/postcss": "^4.1.7",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.4.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "@vitejs/plugin-react": "^3.0.0",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^4.1.7",
+    "typescript": "^4.8.4",
+    "vite": "^4.0.0"
+  }
+}
