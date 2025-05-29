@@ -21,9 +21,9 @@ The goal of this exercise is to build a self-contained, React-powered product to
 ### Functional Requirements
 
 - **Mounting:** the `TourEngine` component is already mounted in the root of the DOM, use it and extend it with all required funcionality
-- **Tour Definition:** Load `tour.json` at runtime. Each step may include:
+- **Tour Definition:** Use `tourDefinition` variable which describes steps of the tour. Each step may include:
   - `url` (string): only run this step if `window.location.href` matches.
-  - `selector` (CSS selector): the target element to highlight. If no selector is present, render a centered dialog.
+  - `selector` (CSS selector): the target element to highlight.
   - `title` & `text` (strings): step content.
   - `continueByTargetClick` (boolean): if true, advance the tour when the target element is clicked; otherwise show Next/Done buttons in a tooltip.
 - **Step Behavior:**
